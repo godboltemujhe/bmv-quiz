@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>BMV Quiz</title>
+    <style>
+      /* Debug loading overlay */
+      .debug-loading {
+        position: fixed;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.85);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        z-index: 9999;
+        font-size: 14px;
+        max-width: 80%;
+        white-space: pre-wrap;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      .debug-loading.hidden {
+        display: none;
+      }
+      /* Default page styles for loading state */
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f5f5f5;
+      }
+      /* Hide default loading state once React mounts */
+      body.react-loaded {
+        background-color: transparent;
+        display: block;
+      }
+      #initial-loading {
+        text-align: center;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      #initial-loading.hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Initial loading state shown before React loads -->
+    <div id="initial-loading">
+      <h2>BMV Quiz App</h2>
+      <p>Loading application...</p>
+      <p><small>If you continue to see this message, please check the console for errors.</small></p>
+    </div>
+    
+    <div id="root"></div>
+    
+    <!-- Debug info displayed in center top -->
+    <div id="debug-info" class="debug-loading">
+      Loading React app... (v2.1)
+      
+      Debug Info: Checking application status...
+    </div>
+    
+    <!-- URL Access Banner - Will be shown only if there's a DNS issue -->
+    <div id="url-access-banner" style="display: none; position: fixed; top: 0; left: 0; right: 0; background-color: #ef4444; color: white; padding: 15px; text-align: center; z-index: 10000; font-weight: bold;">
+      <p>⚠️ You may be accessing this application from the wrong URL. Try using: <a id="correct-url-link" href="#" style="color: white; text-decoration: underline;"></a></p>
+    </div>
+    
+    <script>
+      // Log startup info to help with debugging
+      console.log('BMV Quiz App index.html loaded at:', new Date().toISOString());
+      console.log('Window location:', window.location.href);
+      
+      // URL check for DNS errors
+      (function checkUrlAccess() {
+        try {
+          // Check if we're on a Replit URL
+          const currentLocation = window.location.hostname;
+          
+          // If the URL doesn't match the expected pattern, show the banner
+          if (currentLocation.includes('repl.co') && !currentLocation.includes('workspace.bdawpll.repl.co')) {
+            console.warn('Incorrect URL detected:', currentLocation);
+            
+            // Set the correct URL
+            const correctUrl = 'https://workspace.bdawpll.repl.co';
+            
+            // Update the banner
+            const banner = document.getElementById('url-access-banner');
+            const urlLink = document.getElementById('correct-url-link');
+            
+            if (banner && urlLink) {
+              urlLink.href = correctUrl;
+              urlLink.textContent = correctUrl;
+              banner.style.display = 'block';
+            }
+            
+            // Also update the debug info
+            const debugInfo = document.getElementById('debug-info');
+            if (debugInfo) {
+              debugInfo.textContent = 'Warning: You are using an incorrect URL. Please use: ' + correctUrl;
+              debugInfo.style.background = 'rgba(200, 30, 30, 0.9)';
+            }
+          }
+        } catch (err) {
+          console.error('Error in URL check:', err);
+        }
+      })();
+      
+      // Simple error tracking to catch early errors
+      window.addEventListener('error', function(event) {
+        console.error('Script loading error:', event.error || event.message);
+        
+        const debugInfo = document.getElementById('debug-info');
+        if(debugInfo) {
+          debugInfo.textContent = 'Error: ' + (event.error?.message || event.message || 'Unknown error');
+        }
+      });
+      
+      // Track when main script starts loading
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM Content loaded at:', new Date().toISOString());
+        
+        // Check for API health immediately
+        fetch('/api/health')
+          .then(res => res.json())
+          .catch(err => {
+            console.error('API health check failed:', err);
+            
+            // If the API check fails, it might be a DNS issue
+            const debugInfo = document.getElementById('debug-info');
+            if (debugInfo) {
+              debugInfo.textContent = 'API Error: Cannot reach server. This could be a DNS issue.';
+              debugInfo.style.background = 'rgba(200, 30, 30, 0.9)';
+            }
+            
+            // Show the banner with the correct URL
+            const banner = document.getElementById('url-access-banner');
+            const urlLink = document.getElementById('correct-url-link');
+            
+            if (banner && urlLink) {
+              const correctUrl = 'https://workspace.bdawpll.repl.co';
+              urlLink.href = correctUrl;
+              urlLink.textContent = correctUrl;
+              banner.style.display = 'block';
+            }
+          });
+      });
+    </script>
+    
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // This script runs after the module script is parsed
+      console.log('Main script tag parsed at:', new Date().toISOString());
+      
+      // Hide initial loading and debug overlay once React mounts
+      const reactRoot = document.getElementById('root');
+      const initialLoading = document.getElementById('initial-loading');
+      const debugInfo = document.getElementById('debug-info');
+      
+      // Set up a mutation observer to detect when React renders
+      const observer = new MutationObserver((mutations) => {
+        if (reactRoot.children.length > 0) {
+          console.log('React app mounted at:', new Date().toISOString());
+          
+          // Hide initial loading but keep debug info visible for React to manage
+          if (initialLoading) initialLoading.classList.add('hidden');
+          if (debugInfo) {
+            debugInfo.textContent = 'React app mounted! Waiting for API health check...';
+          }
+          document.body.classList.add('react-loaded');
+          
+          // We can stop observing
+          observer.disconnect();
+        }
+      });
+      
+      // Start observing
+      observer.observe(reactRoot, { childList: true });
+      
+      // If React doesn't mount within 5 seconds, update the message
+      setTimeout(() => {
+        if (reactRoot.children.length === 0) {
+          console.log('React app not mounted after 5 seconds');
+          if (debugInfo) {
+            debugInfo.textContent = 'Warning: React app not mounting (5s timeout)';
+          }
+          if (initialLoading) {
+            const paragraph = initialLoading.querySelector('p');
+            if (paragraph) {
+              paragraph.textContent = 'Application is taking longer than expected to load. Please check the console for errors.';
+            }
+          }
+        }
+      }, 5000);
+    </script>
+  </body>
+</html>

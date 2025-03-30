@@ -1,0 +1,59 @@
+# BMV Quiz App
+
+## Application Information
+
+- Name: BMV Quiz App
+- Version: 1.0.0
+- Type: React + Express Application
+- Database: PostgreSQL (optional)
+
+## Application Features
+
+- Create and edit quizzes
+- Take quizzes with timer
+- Track score and history
+- Share quizzes
+- Export and import quizzes
+- Offline functionality
+- Cross-device synchronization
+
+## File Structure
+
+- `/client`: Frontend React application
+- `/server`: Backend Express server
+- `/shared`: Shared types and schemas
+- `/public`: Static assets
+- `/deployment-guide.md`: Deployment instructions
+- `/deploy.sh`: One-click deployment script
+- `/Dockerfile`: Docker configuration
+
+## Requirements
+
+- Node.js 18 or higher
+- npm or yarn
+- PostgreSQL (optional)
+
+## Quick Commands
+
+- Install: `npm install`
+- Start development: `npm run dev`
+- Build: `npm run build`
+- Start production: `npm start`
+- Database migration: `npm run db:push`
+
+## Mobile Application Usage
+
+For Android app integration, the application provides:
+
+1. Backup/Restore functionality
+2. Data export/import
+3. Cross-device synchronization
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. Check the browser console for errors
+2. Verify API endpoints are responding with `/api/health`
+3. Ensure environment variables are set correctly
+4. Check database connection if using PostgreSQL
